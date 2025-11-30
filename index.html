@@ -61,7 +61,10 @@
                 birthYear: '',
                 birthMonth: '',
                 birthDay: '',
-                birthTime: '',
+                birthHour: '',
+                birthMinute: '',
+                isAM: true,
+                isPM: false,
                 gender: 'male',
                 timeUnknown: false
             });
@@ -196,13 +199,39 @@
                     return;
                 }
 
-                if (!formData.timeUnknown && !formData.birthTime) {
-                    alert('태어난 시간을 입력하거나 "모름"을 선택해주세요.');
-                    return;
+                if (!formData.timeUnknown) {
+                    if (!formData.birthHour || formData.birthMinute === '') {
+                        alert('태어난 시와 분을 선택하거나 "모름"을 선택해주세요.');
+                        return;
+                    }
+                    if (!formData.isAM && !formData.isPM) {
+                        alert('오전 또는 오후 중 하나를 선택해주세요.');
+                        return;
+                    }
                 }
 
                 const birthDate = new Date(formData.birthYear, formData.birthMonth - 1, formData.birthDay);
-                const saju = calculateSaju(birthDate, formData.birthTime, formData.timeUnknown);
+
+                // 시/분과 오전/오후를 24시간 형식으로 변환
+                let timeStr = '12:00';
+                if (!formData.timeUnknown) {
+                    let hour = parseInt(formData.birthHour, 10);
+                    const minute = parseInt(formData.birthMinute, 10) || 0;
+
+                    // 오전/오후 체크박스 처리
+                    if (formData.isAM && !formData.isPM) {
+                        if (hour === 12) hour = 0;
+                    } else if (formData.isPM && !formData.isAM) {
+                        if (hour !== 12) hour = hour + 12;
+                    } else if (formData.isAM && formData.isPM) {
+                        // 둘 다 체크된 경우 PM 우선으로 처리
+                        if (hour !== 12) hour = hour + 12;
+                    }
+
+                    timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                }
+
+                const saju = calculateSaju(birthDate, timeStr, formData.timeUnknown);
                 const elementAnalysis = analyzeElements(saju);
                 const fortune = generateFortune();
                 const advice = generateAdvice(elementAnalysis);
@@ -222,7 +251,10 @@
                     birthYear: '',
                     birthMonth: '',
                     birthDay: '',
-                    birthTime: '',
+                    birthHour: '',
+                    birthMinute: '',
+                    isAM: true,
+                    isPM: false,
                     gender: 'male',
                     timeUnknown: false
                 });
@@ -302,13 +334,55 @@
                                             <Clock size={20} />
                                             태어난 시간
                                         </label>
-                                        <input
-                                            type="time"
-                                            value={formData.birthTime}
-                                            onChange={(e) => setFormData({...formData, birthTime: e.target.value})}
-                                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition"
-                                            disabled={formData.timeUnknown}
-                                        />
+                                        <div className="flex gap-3">
+                                            <select
+                                                value={formData.birthHour}
+                                                onChange={(e) => setFormData({...formData, birthHour: e.target.value})}
+                                                className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition w-32"
+                                                disabled={formData.timeUnknown}
+                                            >
+                                                <option value="">시</option>
+                                                {Array.from({length:12},(_,i)=>i+1).map(h => (
+                                                    <option key={h} value={h}>{h}시</option>
+                                                ))}
+                                            </select>
+
+                                            <select
+                                                value={formData.birthMinute}
+                                                onChange={(e) => setFormData({...formData, birthMinute: e.target.value})}
+                                                className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition w-32"
+                                                disabled={formData.timeUnknown}
+                                            >
+                                                <option value="">분</option>
+                                                {Array.from({length:60},(_,i)=>i).map(m => (
+                                                    <option key={m} value={m}>{m}분</option>
+                                                ))}
+                                            </select>
+
+                                            <div className="flex items-center gap-3">
+                                                <label className="flex items-center gap-2 text-gray-600">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={formData.isAM}
+                                                        onChange={(e) => setFormData({...formData, isAM: e.target.checked})}
+                                                        className="w-4 h-4"
+                                                        disabled={formData.timeUnknown}
+                                                    />
+                                                    오전
+                                                </label>
+                                                <label className="flex items-center gap-2 text-gray-600">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={formData.isPM}
+                                                        onChange={(e) => setFormData({...formData, isPM: e.target.checked})}
+                                                        className="w-4 h-4"
+                                                        disabled={formData.timeUnknown}
+                                                    />
+                                                    오후
+                                                </label>
+                                            </div>
+                                        </div>
+
                                         <label className="flex items-center gap-2 mt-2 text-gray-600">
                                             <input
                                                 type="checkbox"

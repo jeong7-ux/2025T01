@@ -1,14 +1,192 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 웹사이트</title>
-</head>
-<body>
-    <h1>안녕하세요!</h1>
-    <p>이것은 나의 첫 번째 HTML 페이지입니다.</p>
-    <p>해보자 어떻게든 되겠지 포기하지말고</p>
-    <a href="another_page.html">다른 페이지로 이동</a>
-</body>
-</html>
+import React, { useState, useEffect } from 'react';
+import { Download } from 'lucide-react';
+
+export default function ScientificCalculator() {
+  const [display, setDisplay] = useState('0');
+  const [memory, setMemory] = useState(0);
+  const [history, setHistory] = useState([]);
+  const [isRadians, setIsRadians] = useState(true);
+
+  const calculate = (expression) => {
+    try {
+      // 삼각함수와 로그 함수 처리
+      let expr = expression
+        .replace(/sin\(/g, isRadians ? 'Math.sin(' : 'Math.sin(Math.PI/180*')
+        .replace(/cos\(/g, isRadians ? 'Math.cos(' : 'Math.cos(Math.PI/180*')
+        .replace(/tan\(/g, isRadians ? 'Math.tan(' : 'Math.tan(Math.PI/180*')
+        .replace(/log\(/g, 'Math.log10(')
+        .replace(/ln\(/g, 'Math.log(')
+        .replace(/√\(/g, 'Math.sqrt(')
+        .replace(/π/g, 'Math.PI')
+        .replace(/e/g, 'Math.E')
+        .replace(/\^/g, '**');
+      
+      const result = eval(expr);
+      return result;
+    } catch (error) {
+      return 'Error';
+    }
+  };
+
+  const handleNumber = (num) => {
+    setDisplay(prev => prev === '0' ? num : prev + num);
+  };
+
+  const handleOperator = (op) => {
+    setDisplay(prev => prev + op);
+  };
+
+  const handleFunction = (func) => {
+    setDisplay(prev => prev + func + '(');
+  };
+
+  const handleEquals = () => {
+    const result = calculate(display);
+    const historyEntry = {
+      expression: display,
+      result: result,
+      timestamp: new Date().toISOString(),
+      mode: isRadians ? 'radians' : 'degrees'
+    };
+    setHistory(prev => [...prev, historyEntry]);
+    setDisplay(String(result));
+  };
+
+  const handleClear = () => {
+    setDisplay('0');
+  };
+
+  const handleBackspace = () => {
+    setDisplay(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
+  };
+
+  const downloadJSON = () => {
+    const jsonData = {
+      calculator: 'Scientific Calculator',
+      exportDate: new Date().toISOString(),
+      calculationHistory: history
+    };
+    
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `calculator-history-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const Button = ({ onClick, children, className = '' }) => (
+    <button
+      onClick={onClick}
+      className={`p-3 rounded-lg font-semibold text-sm transition-all hover:scale-105 active:scale-95 ${className}`}
+    >
+      {children}
+    </button>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-md">
+        <div className="mb-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-white">공학계산기</h1>
+          <button
+            onClick={downloadJSON}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            <Download size={18} />
+            JSON
+          </button>
+        </div>
+
+        {/* 디스플레이 */}
+        <div className="bg-slate-950 rounded-lg p-4 mb-4 min-h-20 flex items-end justify-end">
+          <div className="text-right">
+            <div className="text-xs text-gray-400 mb-1">
+              {isRadians ? 'RAD' : 'DEG'}
+            </div>
+            <div className="text-3xl font-mono text-white break-all">
+              {display}
+            </div>
+          </div>
+        </div>
+
+        {/* 모드 전환 */}
+        <div className="mb-3 flex gap-2">
+          <button
+            onClick={() => setIsRadians(!isRadians)}
+            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition-colors"
+          >
+            {isRadians ? 'RAD' : 'DEG'}
+          </button>
+          <button
+            onClick={handleClear}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition-colors"
+          >
+            AC
+          </button>
+          <button
+            onClick={handleBackspace}
+            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg transition-colors"
+          >
+            ←
+          </button>
+        </div>
+
+        {/* 과학 함수 버튼 */}
+        <div className="grid grid-cols-5 gap-2 mb-3">
+          <Button onClick={() => handleFunction('sin')} className="bg-blue-600 hover:bg-blue-700 text-white">sin</Button>
+          <Button onClick={() => handleFunction('cos')} className="bg-blue-600 hover:bg-blue-700 text-white">cos</Button>
+          <Button onClick={() => handleFunction('tan')} className="bg-blue-600 hover:bg-blue-700 text-white">tan</Button>
+          <Button onClick={() => handleFunction('log')} className="bg-blue-600 hover:bg-blue-700 text-white">log</Button>
+          <Button onClick={() => handleFunction('ln')} className="bg-blue-600 hover:bg-blue-700 text-white">ln</Button>
+        </div>
+
+        <div className="grid grid-cols-5 gap-2 mb-3">
+          <Button onClick={() => handleOperator('^')} className="bg-indigo-600 hover:bg-indigo-700 text-white">x^y</Button>
+          <Button onClick={() => handleFunction('√')} className="bg-indigo-600 hover:bg-indigo-700 text-white">√</Button>
+          <Button onClick={() => handleOperator('π')} className="bg-indigo-600 hover:bg-indigo-700 text-white">π</Button>
+          <Button onClick={() => handleOperator('e')} className="bg-indigo-600 hover:bg-indigo-700 text-white">e</Button>
+          <Button onClick={() => handleOperator('(')} className="bg-indigo-600 hover:bg-indigo-700 text-white">(</Button>
+        </div>
+
+        {/* 숫자 및 기본 연산 버튼 */}
+        <div className="grid grid-cols-4 gap-2">
+          <Button onClick={() => handleNumber('7')} className="bg-slate-700 hover:bg-slate-600 text-white">7</Button>
+          <Button onClick={() => handleNumber('8')} className="bg-slate-700 hover:bg-slate-600 text-white">8</Button>
+          <Button onClick={() => handleNumber('9')} className="bg-slate-700 hover:bg-slate-600 text-white">9</Button>
+          <Button onClick={() => handleOperator('/')} className="bg-amber-600 hover:bg-amber-700 text-white">÷</Button>
+          
+          <Button onClick={() => handleNumber('4')} className="bg-slate-700 hover:bg-slate-600 text-white">4</Button>
+          <Button onClick={() => handleNumber('5')} className="bg-slate-700 hover:bg-slate-600 text-white">5</Button>
+          <Button onClick={() => handleNumber('6')} className="bg-slate-700 hover:bg-slate-600 text-white">6</Button>
+          <Button onClick={() => handleOperator('*')} className="bg-amber-600 hover:bg-amber-700 text-white">×</Button>
+          
+          <Button onClick={() => handleNumber('1')} className="bg-slate-700 hover:bg-slate-600 text-white">1</Button>
+          <Button onClick={() => handleNumber('2')} className="bg-slate-700 hover:bg-slate-600 text-white">2</Button>
+          <Button onClick={() => handleNumber('3')} className="bg-slate-700 hover:bg-slate-600 text-white">3</Button>
+          <Button onClick={() => handleOperator('-')} className="bg-amber-600 hover:bg-amber-700 text-white">−</Button>
+          
+          <Button onClick={() => handleNumber('0')} className="bg-slate-700 hover:bg-slate-600 text-white">0</Button>
+          <Button onClick={() => handleNumber('.')} className="bg-slate-700 hover:bg-slate-600 text-white">.</Button>
+          <Button onClick={handleEquals} className="bg-green-600 hover:bg-green-700 text-white">=</Button>
+          <Button onClick={() => handleOperator('+')} className="bg-amber-600 hover:bg-amber-700 text-white">+</Button>
+          
+          <Button onClick={() => handleOperator(')')} className="bg-indigo-600 hover:bg-indigo-700 text-white col-span-4">)</Button>
+        </div>
+
+        {/* 계산 이력 */}
+        {history.length > 0 && (
+          <div className="mt-4 bg-slate-950 rounded-lg p-4 max-h-40 overflow-y-auto">
+            <h3 className="text-sm font-semibold text-gray-400 mb-2">계산 이력</h3>
+            {history.slice(-5).reverse().map((entry, idx) => (
+              <div key={idx} className="text-xs text-gray-300 mb-1 border-b border-slate-800 pb-1">
+                <div>{entry.expression} = {entry.result}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

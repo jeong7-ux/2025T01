@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserInput, Gender } from '../types';
 import { Sparkles, Calendar, Clock, User } from 'lucide-react';
 
@@ -9,16 +9,40 @@ interface InputFormProps {
 
 const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => {
   const [name, setName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
+  
+  // Date selection state
+  const currentYear = new Date().getFullYear();
+  const [year, setYear] = useState(1990);
+  const [month, setMonth] = useState(1);
+  const [day, setDay] = useState(1);
+  
   const [birthTime, setBirthTime] = useState('');
   const [isTimeUnknown, setIsTimeUnknown] = useState(false);
   const [gender, setGender] = useState<Gender>(Gender.MALE);
 
+  // Generate arrays for dropdowns
+  const years = Array.from({ length: 100 }, (_, i) => currentYear - i); // Current year down 100 years
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const getDaysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
+  const days = Array.from({ length: getDaysInMonth(year, month) }, (_, i) => i + 1);
+
+  // Ensure day is valid when month/year changes (e.g., Feb 31 -> Feb 28)
+  useEffect(() => {
+    const maxDay = getDaysInMonth(year, month);
+    if (day > maxDay) {
+      setDay(maxDay);
+    }
+  }, [year, month, day]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Format date as YYYY-MM-DD
+    const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
     onSubmit({
       name,
-      birthDate,
+      birthDate: formattedDate,
       birthTime: isTimeUnknown ? 'unknown' : birthTime,
       gender
     });
@@ -47,19 +71,52 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => {
           />
         </div>
 
-        {/* Date Input */}
+        {/* Date Input (Combo Boxes) */}
         <div className="space-y-2">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Calendar className="w-4 h-4 mr-2 text-amber-500" />
             생년월일 (양력)
           </label>
-          <input
-            type="date"
-            required
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-white outline-none transition-all"
-          />
+          <div className="grid grid-cols-3 gap-2">
+            {/* Year Select */}
+            <div className="relative">
+              <select
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+                className="w-full px-3 py-3 bg-gray-900/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-white outline-none appearance-none cursor-pointer"
+              >
+                {years.map((y) => (
+                  <option key={y} value={y}>{y}년</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Month Select */}
+            <div className="relative">
+              <select
+                value={month}
+                onChange={(e) => setMonth(Number(e.target.value))}
+                className="w-full px-3 py-3 bg-gray-900/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-white outline-none appearance-none cursor-pointer"
+              >
+                {months.map((m) => (
+                  <option key={m} value={m}>{m}월</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Day Select */}
+            <div className="relative">
+              <select
+                value={day}
+                onChange={(e) => setDay(Number(e.target.value))}
+                className="w-full px-3 py-3 bg-gray-900/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-white outline-none appearance-none cursor-pointer"
+              >
+                {days.map((d) => (
+                  <option key={d} value={d}>{d}일</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Time Input */}
@@ -119,7 +176,7 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => {
 
         <button
           type="submit"
-          disabled={isLoading || !birthDate}
+          disabled={isLoading}
           className="w-full py-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold rounded-lg shadow-lg transform transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isLoading ? (

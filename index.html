@@ -1,192 +1,405 @@
-import React, { useState, useEffect } from 'react';
-import { Download } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공학계산기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-export default function ScientificCalculator() {
-  const [display, setDisplay] = useState('0');
-  const [memory, setMemory] = useState(0);
-  const [history, setHistory] = useState([]);
-  const [isRadians, setIsRadians] = useState(true);
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #7c3aed 50%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-  const calculate = (expression) => {
-    try {
-      // 삼각함수와 로그 함수 처리
-      let expr = expression
-        .replace(/sin\(/g, isRadians ? 'Math.sin(' : 'Math.sin(Math.PI/180*')
-        .replace(/cos\(/g, isRadians ? 'Math.cos(' : 'Math.cos(Math.PI/180*')
-        .replace(/tan\(/g, isRadians ? 'Math.tan(' : 'Math.tan(Math.PI/180*')
-        .replace(/log\(/g, 'Math.log10(')
-        .replace(/ln\(/g, 'Math.log(')
-        .replace(/√\(/g, 'Math.sqrt(')
-        .replace(/π/g, 'Math.PI')
-        .replace(/e/g, 'Math.E')
-        .replace(/\^/g, '**');
-      
-      const result = eval(expr);
-      return result;
-    } catch (error) {
-      return 'Error';
-    }
-  };
+        .calculator {
+            background: #1e293b;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+        }
 
-  const handleNumber = (num) => {
-    setDisplay(prev => prev === '0' ? num : prev + num);
-  };
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-  const handleOperator = (op) => {
-    setDisplay(prev => prev + op);
-  };
+        h1 {
+            color: white;
+            font-size: 24px;
+        }
 
-  const handleFunction = (func) => {
-    setDisplay(prev => prev + func + '(');
-  };
+        .display {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
 
-  const handleEquals = () => {
-    const result = calculate(display);
-    const historyEntry = {
-      expression: display,
-      result: result,
-      timestamp: new Date().toISOString(),
-      mode: isRadians ? 'radians' : 'degrees'
-    };
-    setHistory(prev => [...prev, historyEntry]);
-    setDisplay(String(result));
-  };
+        .mode {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
 
-  const handleClear = () => {
-    setDisplay('0');
-  };
+        .display-text {
+            color: white;
+            font-size: 28px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            text-align: right;
+        }
 
-  const handleBackspace = () => {
-    setDisplay(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
-  };
+        .button-grid {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
 
-  const downloadJSON = () => {
-    const jsonData = {
-      calculator: 'Scientific Calculator',
-      exportDate: new Date().toISOString(),
-      calculationHistory: history
-    };
-    
-    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `calculator-history-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+        .grid-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
 
-  const Button = ({ onClick, children, className = '' }) => (
-    <button
-      onClick={onClick}
-      className={`p-3 rounded-lg font-semibold text-sm transition-all hover:scale-105 active:scale-95 ${className}`}
-    >
-      {children}
-    </button>
-  );
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      <div className="bg-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-md">
-        <div className="mb-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">공학계산기</h1>
-          <button
-            onClick={downloadJSON}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            <Download size={18} />
-            JSON
-          </button>
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        button {
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-number {
+            background: #334155;
+            color: white;
+        }
+
+        .btn-number:hover {
+            background: #475569;
+        }
+
+        .btn-operator {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-operator:hover {
+            background: #d97706;
+        }
+
+        .btn-function {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-function:hover {
+            background: #2563eb;
+        }
+
+        .btn-special {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-special:hover {
+            background: #4f46e5;
+        }
+
+        .btn-clear {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #dc2626;
+        }
+
+        .btn-mode {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .btn-mode:hover {
+            background: #7c3aed;
+        }
+
+        .btn-equals {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-equals:hover {
+            background: #059669;
+        }
+
+        .col-span-4 {
+            grid-column: span 4;
+        }
+
+        .history {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history h3 {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            color: #cbd5e1;
+            font-size: 12px;
+            padding: 5px 0;
+            border-bottom: 1px solid #334155;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        .history::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>🧮 공학계산기</h1>
         </div>
 
-        {/* 디스플레이 */}
-        <div className="bg-slate-950 rounded-lg p-4 mb-4 min-h-20 flex items-end justify-end">
-          <div className="text-right">
-            <div className="text-xs text-gray-400 mb-1">
-              {isRadians ? 'RAD' : 'DEG'}
-            </div>
-            <div className="text-3xl font-mono text-white break-all">
-              {display}
-            </div>
-          </div>
+        <div class="display">
+            <div class="mode" id="mode">RAD</div>
+            <div class="display-text" id="display">0</div>
         </div>
 
-        {/* 모드 전환 */}
-        <div className="mb-3 flex gap-2">
-          <button
-            onClick={() => setIsRadians(!isRadians)}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition-colors"
-          >
-            {isRadians ? 'RAD' : 'DEG'}
-          </button>
-          <button
-            onClick={handleClear}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition-colors"
-          >
-            AC
-          </button>
-          <button
-            onClick={handleBackspace}
-            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg transition-colors"
-          >
-            ←
-          </button>
+        <div class="button-grid grid-3" style="margin-bottom: 15px;">
+            <button class="btn-mode" onclick="toggleMode()">RAD/DEG</button>
+            <button class="btn-clear" onclick="clearDisplay()">AC</button>
+            <button class="btn-operator" onclick="backspace()">←</button>
         </div>
 
-        {/* 과학 함수 버튼 */}
-        <div className="grid grid-cols-5 gap-2 mb-3">
-          <Button onClick={() => handleFunction('sin')} className="bg-blue-600 hover:bg-blue-700 text-white">sin</Button>
-          <Button onClick={() => handleFunction('cos')} className="bg-blue-600 hover:bg-blue-700 text-white">cos</Button>
-          <Button onClick={() => handleFunction('tan')} className="bg-blue-600 hover:bg-blue-700 text-white">tan</Button>
-          <Button onClick={() => handleFunction('log')} className="bg-blue-600 hover:bg-blue-700 text-white">log</Button>
-          <Button onClick={() => handleFunction('ln')} className="bg-blue-600 hover:bg-blue-700 text-white">ln</Button>
+        <div class="button-grid grid-5">
+            <button class="btn-function" onclick="addFunction('sin(')">sin</button>
+            <button class="btn-function" onclick="addFunction('cos(')">cos</button>
+            <button class="btn-function" onclick="addFunction('tan(')">tan</button>
+            <button class="btn-function" onclick="addFunction('log(')">log</button>
+            <button class="btn-function" onclick="addFunction('ln(')">ln</button>
         </div>
 
-        <div className="grid grid-cols-5 gap-2 mb-3">
-          <Button onClick={() => handleOperator('^')} className="bg-indigo-600 hover:bg-indigo-700 text-white">x^y</Button>
-          <Button onClick={() => handleFunction('√')} className="bg-indigo-600 hover:bg-indigo-700 text-white">√</Button>
-          <Button onClick={() => handleOperator('π')} className="bg-indigo-600 hover:bg-indigo-700 text-white">π</Button>
-          <Button onClick={() => handleOperator('e')} className="bg-indigo-600 hover:bg-indigo-700 text-white">e</Button>
-          <Button onClick={() => handleOperator('(')} className="bg-indigo-600 hover:bg-indigo-700 text-white">(</Button>
+        <div class="button-grid grid-5" style="margin-top: 10px;">
+            <button class="btn-special" onclick="addOperator('^')">x^y</button>
+            <button class="btn-special" onclick="addFunction('√(')">√</button>
+            <button class="btn-special" onclick="addOperator('π')">π</button>
+            <button class="btn-special" onclick="addOperator('e')">e</button>
+            <button class="btn-special" onclick="addOperator('(')">(</button>
         </div>
 
-        {/* 숫자 및 기본 연산 버튼 */}
-        <div className="grid grid-cols-4 gap-2">
-          <Button onClick={() => handleNumber('7')} className="bg-slate-700 hover:bg-slate-600 text-white">7</Button>
-          <Button onClick={() => handleNumber('8')} className="bg-slate-700 hover:bg-slate-600 text-white">8</Button>
-          <Button onClick={() => handleNumber('9')} className="bg-slate-700 hover:bg-slate-600 text-white">9</Button>
-          <Button onClick={() => handleOperator('/')} className="bg-amber-600 hover:bg-amber-700 text-white">÷</Button>
-          
-          <Button onClick={() => handleNumber('4')} className="bg-slate-700 hover:bg-slate-600 text-white">4</Button>
-          <Button onClick={() => handleNumber('5')} className="bg-slate-700 hover:bg-slate-600 text-white">5</Button>
-          <Button onClick={() => handleNumber('6')} className="bg-slate-700 hover:bg-slate-600 text-white">6</Button>
-          <Button onClick={() => handleOperator('*')} className="bg-amber-600 hover:bg-amber-700 text-white">×</Button>
-          
-          <Button onClick={() => handleNumber('1')} className="bg-slate-700 hover:bg-slate-600 text-white">1</Button>
-          <Button onClick={() => handleNumber('2')} className="bg-slate-700 hover:bg-slate-600 text-white">2</Button>
-          <Button onClick={() => handleNumber('3')} className="bg-slate-700 hover:bg-slate-600 text-white">3</Button>
-          <Button onClick={() => handleOperator('-')} className="bg-amber-600 hover:bg-amber-700 text-white">−</Button>
-          
-          <Button onClick={() => handleNumber('0')} className="bg-slate-700 hover:bg-slate-600 text-white">0</Button>
-          <Button onClick={() => handleNumber('.')} className="bg-slate-700 hover:bg-slate-600 text-white">.</Button>
-          <Button onClick={handleEquals} className="bg-green-600 hover:bg-green-700 text-white">=</Button>
-          <Button onClick={() => handleOperator('+')} className="bg-amber-600 hover:bg-amber-700 text-white">+</Button>
-          
-          <Button onClick={() => handleOperator(')')} className="bg-indigo-600 hover:bg-indigo-700 text-white col-span-4">)</Button>
+        <div class="button-grid grid-4" style="margin-top: 10px;">
+            <button class="btn-number" onclick="addNumber('7')">7</button>
+            <button class="btn-number" onclick="addNumber('8')">8</button>
+            <button class="btn-number" onclick="addNumber('9')">9</button>
+            <button class="btn-operator" onclick="addOperator('/')">÷</button>
+
+            <button class="btn-number" onclick="addNumber('4')">4</button>
+            <button class="btn-number" onclick="addNumber('5')">5</button>
+            <button class="btn-number" onclick="addNumber('6')">6</button>
+            <button class="btn-operator" onclick="addOperator('*')">×</button>
+
+            <button class="btn-number" onclick="addNumber('1')">1</button>
+            <button class="btn-number" onclick="addNumber('2')">2</button>
+            <button class="btn-number" onclick="addNumber('3')">3</button>
+            <button class="btn-operator" onclick="addOperator('-')">−</button>
+
+            <button class="btn-number" onclick="addNumber('0')">0</button>
+            <button class="btn-number" onclick="addNumber('.')">.</button>
+            <button class="btn-equals" onclick="calculate()">=</button>
+            <button class="btn-operator" onclick="addOperator('+')">+</button>
+
+            <button class="btn-special col-span-4" onclick="addOperator(')')">)</button>
         </div>
 
-        {/* 계산 이력 */}
-        {history.length > 0 && (
-          <div className="mt-4 bg-slate-950 rounded-lg p-4 max-h-40 overflow-y-auto">
-            <h3 className="text-sm font-semibold text-gray-400 mb-2">계산 이력</h3>
-            {history.slice(-5).reverse().map((entry, idx) => (
-              <div key={idx} className="text-xs text-gray-300 mb-1 border-b border-slate-800 pb-1">
-                <div>{entry.expression} = {entry.result}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        <div class="history" id="history" style="display: none;">
+            <h3>계산 이력</h3>
+            <div id="historyList"></div>
+        </div>
     </div>
-  );
-}
+
+    <script>
+        let display = document.getElementById('display');
+        let modeDisplay = document.getElementById('mode');
+        let historyDiv = document.getElementById('history');
+        let historyList = document.getElementById('historyList');
+        
+        let currentDisplay = '0';
+        let isRadians = true;
+        let history = [];
+
+        function updateDisplay() {
+            display.textContent = currentDisplay;
+        }
+
+        function addNumber(num) {
+            if (currentDisplay === '0') {
+                currentDisplay = num;
+            } else {
+                currentDisplay += num;
+            }
+            updateDisplay();
+        }
+
+        function addOperator(op) {
+            currentDisplay += op;
+            updateDisplay();
+        }
+
+        function addFunction(func) {
+            currentDisplay += func;
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentDisplay = '0';
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (currentDisplay.length > 1) {
+                currentDisplay = currentDisplay.slice(0, -1);
+            } else {
+                currentDisplay = '0';
+            }
+            updateDisplay();
+        }
+
+        function toggleMode() {
+            isRadians = !isRadians;
+            modeDisplay.textContent = isRadians ? 'RAD' : 'DEG';
+        }
+
+        function calculate() {
+            try {
+                let expression = currentDisplay;
+                
+                // 삼각함수와 기타 함수 처리
+                expression = expression
+                    .replace(/sin\(/g, isRadians ? 'Math.sin(' : 'Math.sin(Math.PI/180*')
+                    .replace(/cos\(/g, isRadians ? 'Math.cos(' : 'Math.cos(Math.PI/180*')
+                    .replace(/tan\(/g, isRadians ? 'Math.tan(' : 'Math.tan(Math.PI/180*')
+                    .replace(/log\(/g, 'Math.log10(')
+                    .replace(/ln\(/g, 'Math.log(')
+                    .replace(/√\(/g, 'Math.sqrt(')
+                    .replace(/π/g, 'Math.PI')
+                    .replace(/e/g, 'Math.E')
+                    .replace(/\^/g, '**');
+                
+                let result = eval(expression);
+                
+                // 결과가 너무 길면 반올림
+                if (typeof result === 'number') {
+                    result = Math.round(result * 1000000000) / 1000000000;
+                }
+                
+                // 이력에 추가
+                let historyEntry = {
+                    expression: currentDisplay,
+                    result: result,
+                    timestamp: new Date().toLocaleString('ko-KR'),
+                    mode: isRadians ? 'RAD' : 'DEG'
+                };
+                
+                history.push(historyEntry);
+                updateHistory();
+                
+                currentDisplay = String(result);
+                updateDisplay();
+            } catch (error) {
+                currentDisplay = 'Error';
+                updateDisplay();
+            }
+        }
+
+        function updateHistory() {
+            if (history.length > 0) {
+                historyDiv.style.display = 'block';
+                historyList.innerHTML = '';
+                
+                // 최근 5개만 표시 (역순)
+                let recentHistory = history.slice(-5).reverse();
+                recentHistory.forEach(entry => {
+                    let item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.textContent = `${entry.expression} = ${entry.result}`;
+                    historyList.appendChild(item);
+                });
+            }
+        }
+
+        // 키보드 입력 지원
+        document.addEventListener('keydown', function(event) {
+            if (event.key >= '0' && event.key <= '9') {
+                addNumber(event.key);
+            } else if (event.key === '.') {
+                addNumber('.');
+            } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+                addOperator(event.key);
+            } else if (event.key === 'Enter') {
+                calculate();
+            } else if (event.key === 'Escape') {
+                clearDisplay();
+            } else if (event.key === 'Backspace') {
+                backspace();
+            }
+        });
+    </script>
+</body>
+</html>

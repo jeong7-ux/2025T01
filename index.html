@@ -1,290 +1,56 @@
 <!DOCTYPE html>
-<html lang="ko">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To The J Coding Class - 17단계 수익 파이프라인</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScholarMind - AI Scientific Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              indigo: {
+                50: '#eef2ff',
+                100: '#e0e7ff',
+                500: '#6366f1',
+                600: '#4f46e5',
+                700: '#4338ca',
+                900: '#312e81',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      /* Custom scrollbar for webkit */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "d3": "https://aistudiocdn.com/d3@^7.9.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
 </head>
-
-<body>
-    <header id="main-header">
-        <div class="container">
-            <div class="logo">To The J</div>
-            <nav>
-                <ul>
-                    <li><a href="#home">홈</a></li>
-                    <li><a href="#about">소개</a></li>
-                    <li><a href="#curriculum">커리큘럼</a></li>
-                    <li><a href="#instructor">강사소개</a></li>
-                    <li><a href="#reviews">후기</a></li>
-                    <li><a href="#faq">FAQ</a></li>
-                </ul>
-            </nav>
-            <button class="cta-button" onclick="openPaymentModal()">수강신청</button>
-        </div>
-    </header>
-
-    <main>
-        <!-- Hero Section -->
-        <section id="home" class="hero">
-            <div class="container">
-                <span class="badge">코딩으로 만드는 17단계 수익 파이프라인</span>
-                <h1>당신의 인생을 바꿀<br>유일무이한 코딩 수익화 부트캠프</h1>
-                <p>대한민국 유일무이한 코딩 수익화 전문 부트캠프.<br>투더제이만의 검증된 노하우로 만든 특별한 커리큘럼을 만나보세요.</p>
-                <div class="hero-buttons">
-                    <button class="primary-btn" onclick="openPaymentModal()">지금 바로 수강신청</button>
-                    <button class="secondary-btn"
-                        onclick="document.getElementById('curriculum').scrollIntoView({behavior: 'smooth'})">커리큘럼
-                        보기</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- About Section -->
-        <section id="about" class="section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>왜 "코딩으로 만드는 17단계 수익 파이프라인"인가?</h2>
-                    <p>대한민국 유일무이한 코딩 수익화 전문 부트캠프</p>
-                </div>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="icon">🚀</div>
-                        <h3>17가지 수익 모델 완전 공개</h3>
-                        <p>워드프레스 자동화부터 SaaS, 외주개발까지 실제로 경험한 수익 모델을 모두 공개합니다.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="icon">👶</div>
-                        <h3>초보자도 가능한 단계별 가이드</h3>
-                        <p>"Hello World"부터 시작해 수익화까지, 누구나 이해할 수 있는 쉬운 설명과 실습 위주 강의.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="icon">🤖</div>
-                        <h3>AI와 함께하는 최신 기술</h3>
-                        <p>ChatGPT를 활용하여 생산성을 극대화하고 최신 기술 트렌드를 반영한 커리큘럼.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="icon">💰</div>
-                        <h3>완전 자동화된 수익 시스템</h3>
-                        <p>잠자는 동안에도 돈을 벌 수 있는 시스템을 설계하여 진정한 경제적 자유를 경험하세요.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Curriculum Section -->
-        <section id="curriculum" class="section bg-card">
-            <div class="container">
-                <div class="section-header">
-                    <h2>커리큘럼</h2>
-                    <p>기초부터 실전 수익화까지 꽉 채운 17단계 로드맵</p>
-                </div>
-                <div class="curriculum-list">
-                    <div class="curriculum-item">
-                        <span class="step">Step 01</span>
-                        <h3>코딩에 앞서서 준비할 것들</h3>
-                        <p>기초 전략, 기본 상식, 환경 설정</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 02</span>
-                        <h3>워드프레스 자동화로 환경설정</h3>
-                        <p>도메인, 서버, 워드프레스 설치</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 03</span>
-                        <h3>컨텐츠를 준비하고 글 써보기</h3>
-                        <p>저품질 없는 컨텐츠 전략, HTML/CSS 기초</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 04</span>
-                        <h3>무한 유니크 이미지와 데이터 수집</h3>
-                        <p>Puppeteer 크롤링 및 이미지 가공</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 05</span>
-                        <h3>데이터를 수집하고 마음대로 가공하기</h3>
-                        <p>MySQL 데이터베이스 마스터</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 06</span>
-                        <h3>워드프레스 최종 자동화</h3>
-                        <p>Crontab 서버 자동화, SEO 최적화</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 07</span>
-                        <h3>챗GPT로 퀄리티 올리기</h3>
-                        <p>AI를 활용한 블로그 글쓰기 및 API 개발</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 08-10</span>
-                        <h3>서버/워드프레스 초고속 셋팅</h3>
-                        <p>AWS, LAPM, Node.js, SSL, 최적화</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 11-13</span>
-                        <h3>레퍼런스 개발 & 저관여웹</h3>
-                        <p>그누보드, jQuery, 애드센스 수익화</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 14-16</span>
-                        <h3>크롤링 & 중급 외주 & 자동화 완전판</h3>
-                        <p>다양한 크롤링 기법, 외주 전략, 호텔 데이터 자동화</p>
-                    </div>
-                    <div class="curriculum-item">
-                        <span class="step">Step 17+</span>
-                        <h3>어필리에이트 & SaaS & 플랫폼</h3>
-                        <p>쇼핑몰, 게임 퍼블리싱, O2O 서비스, 결제 연동</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Instructor Section -->
-        <section id="instructor" class="section">
-            <div class="container">
-                <div class="instructor-profile">
-                    <div class="profile-text">
-                        <h2>강사 소개: 전병우 (TTJ)</h2>
-                        <p class="role">현) 피라스튜디오 CEO / 전) (주)어스토리 CTO</p>
-                        <p class="bio">
-                            20년 이상의 현장 경험을 바탕으로 실질적인 지식을 전수합니다.<br>
-                            한화S&C, SK플래닛 등 대기업 투자 유치 및 다수의 플랫폼 책임 개발.<br>
-                            "중요한 것은 코딩으로 수익화 할 수 있는 정보를 아는 것입니다."
-                        </p>
-                        <ul class="achievements">
-                            <li>유튜브 '투더제이-TTJ' 채널 운영</li>
-                            <li>2023 유데미 앰버서더</li>
-                            <li>다수의 스타트업 CTO 및 Co-Founder 역임</li>
-                        </ul>
-                    </div>
-                    <!-- Placeholder for instructor image if available, using a gradient circle for now -->
-                    <div class="profile-image-placeholder">
-                        <span>TTJ</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Reviews Section -->
-        <section id="reviews" class="section bg-card">
-            <div class="container">
-                <div class="section-header">
-                    <h2>생생한 수강생 수익인증</h2>
-                    <p>거짓없는 실제 수강생들의 후기입니다.</p>
-                </div>
-                <div class="reviews-grid">
-                    <div class="review-card">
-                        <p class="review-text">"퇴근하고 오면 코딩 공부할 생각에 벅찹니다. 이것만으로도 이미 삶이 변화된게 아닐까요"</p>
-                        <p class="reviewer">- 정규반 수강생</p>
-                    </div>
-                    <div class="review-card">
-                        <p class="review-text">"거액의 수강비가 가성비 있는 수강비로 느껴졌습니다. 이게 찐이다라는 생각이 떠나질 않습니다."</p>
-                        <p class="reviewer">- 정규반 수강생</p>
-                    </div>
-                    <div class="review-card">
-                        <p class="review-text">"1달도 안된 시간에 제가 직접 만든 사이트를 배포하고 운영하고 있다는게 너무 신기합니다."</p>
-                        <p class="reviewer">- 정규반 수강생</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Pricing Section -->
-        <section id="pricing" class="section">
-            <div class="container">
-                <div class="section-header">
-                    <h2>수강 신청</h2>
-                    <p>지금 구매해야 가장 저렴한 특가입니다.</p>
-                </div>
-                <div class="pricing-card">
-                    <div class="badge-best">BEST VALUE</div>
-                    <h3>정규반 과정 + 단과 + 자동화프로그램</h3>
-                    <div class="price-tag">
-                        <span class="original">400,000원</span>
-                        <span class="current">월 248,500원</span>
-                        <span class="period">(12개월 할부 시)</span>
-                    </div>
-                    <ul class="benefits">
-                        <li>✅ 17단계 수익화 커리큘럼 전과정</li>
-                        <li>✅ 평생 소장 VOD</li>
-                        <li>✅ 수익인증 카톡방 초대</li>
-                        <li>✅ 강사의 1:1 피드백</li>
-                    </ul>
-                    <button class="primary-btn full-width" onclick="openPaymentModal()">수강신청 하기</button>
-                    <p class="note">* 인원 마감 시 가격이 상승할 수 있습니다.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- FAQ Section -->
-        <section id="faq" class="section bg-card">
-            <div class="container">
-                <div class="section-header">
-                    <h2>자주 묻는 질문</h2>
-                </div>
-                <div class="faq-list">
-                    <div class="faq-item">
-                        <h3>Q. 코딩을 전혀 모르는 초보자도 가능한가요?</h3>
-                        <p>네! 완전 초보자를 위해 설계되었습니다. Hello World부터 시작해 천천히 확실하게 배울 수 있습니다.</p>
-                    </div>
-                    <div class="faq-item">
-                        <h3>Q. 얼마나 빨리 수익을 볼 수 있나요?</h3>
-                        <p>개인의 노력에 따라 다르지만, 많은 수강생들이 3개월 정도에 첫 수익을 올리기 시작했습니다.</p>
-                    </div>
-                    <div class="faq-item">
-                        <h3>Q. 강의 수강 후 지원이 있나요?</h3>
-                        <p>물론입니다. 지속적인 업데이트, 단과 강의 제공, 커뮤니티 액세스 등 끝까지 지원합니다.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 To The J Coding Class. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- Payment Modal -->
-    <div id="payment-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closePaymentModal()">&times;</span>
-            <h2>수강신청</h2>
-            <div class="product-info">
-                <h3>코딩으로 만드는 17단계 수익 파이프라인</h3>
-                <p class="price">
-                    <span class="original">400,000원</span>
-                    <span class="discounted">248,500원</span>
-                    <span class="badge">38% OFF</span>
-                </p>
-            </div>
-            <form id="payment-form" onsubmit="handlePayment(event)">
-                <div class="form-group">
-                    <label for="name">이름</label>
-                    <input type="text" id="name" required placeholder="홍길동">
-                </div>
-                <div class="form-group">
-                    <label for="email">이메일</label>
-                    <input type="email" id="email" required placeholder="example@email.com">
-                </div>
-                <div class="form-group">
-                    <label for="card">카드번호 (가상)</label>
-                    <input type="text" id="card" required placeholder="0000-0000-0000-0000">
-                </div>
-                <button type="submit" class="pay-btn">결제하기</button>
-            </form>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
 </body>
-
 </html>
